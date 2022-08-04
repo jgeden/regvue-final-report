@@ -1,0 +1,22 @@
+= FPGA Register Explorer Proposal
+
+This repository contains the source for the link:fpga-register-explorer-proposal.adoc[FPGA Register Explorer Proposal] document.
+
+== Generate HTML and PDF
+
+[source,sh]
+----
+make
+----
+
+== Publish a Release to GitHub Pages
+
+[source,sh]
+----
+git tag <tag>
+git push origin <tag>
+make publish
+git -C gh-pages push
+gh release create <tag> --prerelease *.pdf # <1>
+----
+<1> Requires https://cli.github.com[GitHub CLI]
