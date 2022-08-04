@@ -2,7 +2,7 @@
 Josh Geden <joshua.geden@duke.edu>; Rob Donnelly <robert.donnelly@jpl.nasa.gov>
 :toc:
 :imagesdir: images
-// :sectnums:
+:sectnums:
 // :toclevels: 4
 // :titlepage:
 // :doctype: book
