@@ -1,6 +1,6 @@
 = FPGA Register Explorer Proposal
 
-This repository contains the source for the link:fpga-register-explorer-proposal.adoc[FPGA Register Explorer Proposal] document.
+This repository contains the source for the link:regvue-final-report.adoc[Regvue Final Report] document.
 
 == Generate HTML and PDF
 
