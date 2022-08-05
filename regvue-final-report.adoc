@@ -48,11 +48,6 @@ _regvue_ also provides an interactive bit table where users can input and manipu
 
 * IMAGE *
 
-Text.
-The paper should begin by providing background, presenting the nature and scope of the problem being investigated, and giving rationale for the work.
-The main conclusions should be stated briefly in this section.
-This section should be accessible to readers in any discipline (including non-science fields) and readers for whom English is not a first language.
-
 == Methods
 
 Describe the schema
@@ -63,17 +58,39 @@ Reference the schema documentation
 Optionally mention and reference CMSIS-SVD which provided some inspiration for RDF.
 How are they different?  How are they the same?
 
-Methods.
-This section should be subdivided by short headings referring to the technique being used or the experiment being explained.
-This section is directed toward scientists in the author's field.
+When developing _regvue_, the two highest priority goals were interactivity and portability.
+We wanted users to be able to interact with _regvue_, and in doing so provide dynamic documentation rather than static documentation.
+We also did not want users to be restricted in accessing _regvue_ based on the computer they were using.
+
+We considered different ways of implementing _regvue_.
+The first was to generate static HTML pages, similar to _Read the Docs_.
+However this lacked the interactivity that we wanted users to have access to.
+The second potential way of developing was to create a desktop app with Python and the TK GUI library.
+However this was not an incredibly portable solution, because now users would have to download and install _regvue_ on any computer where they want to use it.
+It also makes updating _regvue_ much more complex because users are running local executable.
+
+We finally decided to create _regvue_ as a web application.
+This allows us to include interactivity by using Javascript within the app and it is incredibly portable because users can access it from any browser on any type of OS.
+
+Describe how it was built using Vue
+
+Describe the use of GitHub Pages
 
 == Results
 
-Following this introductory section, the findings should be described concisely with brief descriptions of the methodology when necessary.
-The text should finish with a discussion of the results.
-The implications of the research, relation to other work in the author's lab, and future research directions should be included in this section.
-Even though this section may be technical, it should not be obtuse.
+Engineers working on the Europa Clipper and Mars Sample Return missions have already integrated _regvue_ into their workflows, and so far the tool has proved to be a great help.
 
+"I have used regvue a lot during integration testing for Europa Clipper.
+There are integration tasks to poke and peek at registers and the revgue tool allows me to quickly look up a register and test out different register values.
+Figuring out those register values can be quite challenging since it is broken down to 32 bits, but the regvue tool helps make that translation easier.
+It cuts down the time it would take to go through the document, put down on paper what the register should be and double checking the value.
+Also, with the tool being able to convert from binary to decimal to hexadecimal, it makes translating engineering values way easier.
+I hope to continue to use this on future projects such as MSR."
+-- Brian Nguyen, Senior Electrical Engineer, Avionics Integration, Test, and Operations (348E)
+
+* What do people think about it
+* Has it made development easier
+* Where does it fall short
 
 Figures.
 Include figures whenever possible to illustrate your points.
