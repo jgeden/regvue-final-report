@@ -24,39 +24,31 @@ By providing higher quality documentation and advanced features with _regvue_, h
 
 == Introduction
 
-When engineers need to consult hardware documentation, they traditionally have turned to PDF or Word documents created and maintained by design engineers that are typically hosted on internal file-sharing websites.
-From these websites, users can either open the document as an online file preview or they can download the file and open it locally.
-Because viewing these types of files online lacks a lot of features and is typically slower to use, most users download these documentation files and use them locally.
+When engineers need to consult Field Programmable Gate Array (FPGA) hardware documentation, they traditionally have turned to PDF or Word documents created and maintained by FPGA design engineers that are typically hosted on internal file-sharing websites.
+From these websites, FPGA hardware test engineers can either open the document as an online file preview or they can download the file and open it locally.
+Because viewing these types of files online lacks a lot of features and is typically slower to use, most engineers download these documentation files and use them locally.
 
-This creates an issue when the design engineer uploads a new version of the documentation but users continue to use their locally-downloaded documentation file, which has since become outdated.
+This creates an issue when the design engineer uploads a new version of the documentation but test engineers continue to use their locally-downloaded documentation file, which has since become outdated.
 This mismatch can be difficult to notice and can lead to wasted time when trying to target a specific hardware implementation that no longer exists.
 
 The documentation provided by these Word documents is also static and does not support the actual development and debugging workflow of hardware engineers.
-For example, when developing or debugging hardware, engineers are often interested in the specific value of a hardware register.
+For example, when developing or debugging hardware, FPGA hardware test engineers are often interested in the specific value of a hardware register.
 This register may consist of numerous fields where the specific value of each individual field depends on its position in the overall register.
 The overall register value may also be read out as little or big endian depending of the device under test (DUT).
-It might also be outputted as a hexadecimal value but in order to understand what certain register fields contain, the user will have to convert the value to binary.
-This manual manipulation and conversion of field values is incredibly error-prone and unnecessarily increases the complexity of the already complex hardware development and debugging process.
+It might also be outputted as a hexadecimal value but in order to understand what certain register fields contain, the test engineer will have to convert the value to binary.
+This manual manipulation and conversion of field values is incredibly error-prone and unnecessarily increases the complexity of the already complex hardware testing and debugging process.
 
 These issues with JPL's existing hardware documentation strategy is what inspired to the development of _regvue_.
 Available as both web and desktop applications, _regvue_ supports a design-agnostic JSON schema called the Register Description Format (RDF).
-Users can upload RDF files and _regvue_ will produce a full documentation website, with all the features of classic online technical documentation sites. 
+Design engineers can create RDF files and then _regvue_ can use these files to produce a full documentation website, with all the features of classic online technical documentation sites.
+The documentation provided by _regvue_ significantly reduces the costs and delays associated with testing and debugging FPGA hardware.
+FPGA hardware test engineers no longer have to worry about accessing out-of-date documentation, because FPGA design engineers can provide their RDF files through online repositories that _regvue_ can access.
+Test engineers also no longer have to manually parse register values, because _regvue_ includes an interactive bit table for every register that can automatically decode register values into meaningful representations and can automatically convert values between hexadecimal, decimal, and binary representations.
 
-* IMAGE *
-
-_regvue_ also provides an interactive bit table where users can input and manipulate register values.
 
 * IMAGE *
 
 == Methods
-
-Describe the schema
-Why is a schema important?  What is its purpose?
-Versioning – How do we make breaking changes to schema gracefully?
-Validation
-Reference the schema documentation
-Optionally mention and reference CMSIS-SVD which provided some inspiration for RDF.
-How are they different?  How are they the same?
 
 When developing _regvue_, the two highest priority goals were interactivity and portability.
 We wanted users to be able to interact with _regvue_, and in doing so provide dynamic documentation rather than static documentation.
@@ -67,10 +59,22 @@ The first was to generate static HTML pages, similar to _Read the Docs_.
 However this lacked the interactivity that we wanted users to have access to.
 The second potential way of developing was to create a desktop app with Python and the TK GUI library.
 However this was not an incredibly portable solution, because now users would have to download and install _regvue_ on any computer where they want to use it.
-It also makes updating _regvue_ much more complex because users are running local executable.
+It also makes updating _regvue_ much more complex because users are running local executables.
 
-We finally decided to create _regvue_ as a web application.
+Based on the shortcomings of these implementations, we decided to create _regvue_ as a web application.
 This allows us to include interactivity by using Javascript within the app and it is incredibly portable because users can access it from any browser on any type of OS.
+
+At the heart of _regvue_ is the Register Description Format (RDF).
+The RDF provides a design-agnostic JSON-encoded hardware design formalization that can be used to document FPGA hardware systems.
+The RDF was inspired in part by the https://www.keil.com/pack/doc/CMSIS/SVD/html/index.html[CMSIS System View Description format] (CMSIS-SVD).
+CMSIS-SVD files are specified using an XML-based format, and also includes * more features that make it different *.
+RDF files are instead specified as JSON files in order to more easily support a web-based application.
+* More differences here*
+
+Describe the schema
+Why is a schema important?  What is its purpose?
+Versioning – How do we make breaking changes to schema gracefully?
+
 
 Describe how it was built using Vue
 
@@ -78,7 +82,7 @@ Describe the use of GitHub Pages
 
 == Results
 
-Engineers working on the Europa Clipper and Mars Sample Return missions have already integrated _regvue_ into their workflows, and so far the tool has proved to be a great help.
+Engineers working on the Europa Clipper and Mars Sample Return (MSR) missions have already integrated _regvue_ into their workflows, and so far the tool has proved to be a great help.
 
 "I have used regvue a lot during integration testing for Europa Clipper.
 There are integration tasks to poke and peek at registers and the revgue tool allows me to quickly look up a register and test out different register values.
