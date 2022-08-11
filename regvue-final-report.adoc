@@ -4,10 +4,10 @@ Josh Geden <joshua.geden@duke.edu>; Rob Donnelly <robert.donnelly@jpl.nasa.gov>
 :imagesdir: images
 :sectnums:
 :toclevels: 3
-// :titlepage:
+:title-page:
+:revdate: 2022-08-15
 // :doctype: book
 // :chapter-label:
-// :hardbreaks-option:
 
 == Abstract
 
@@ -62,6 +62,10 @@ Test engineers also no longer have to manually parse register values, because _r
 == Methods (Implementation)
 
 This section details the different parts of the _regvue_ application and the surrounding technologies necessary to run and access it.
+
+/ Talk about development method here /
+
+/ GitHub flow, semantic versioning, tags, release notes /
 
 === Schema
 
@@ -163,11 +167,21 @@ PrimeVue also includes a large amount of overhead.
 
 ==== Search
 
-/ Talk about search /
+FPGA designs can have over hundreds of hardware elements to document, so including extensive search functionality that can be used to quickly find elements was one of the first features to be added to _regvue_.
 
-/ Client-side with Lunr /
+An important restriction on how we could implement search functionality was the need for export-controlled information to remain secure (see <<Export Control>> for more information).
+This means we could not use popular search providers such as Elastic Search or Algolia, because they require transmitting the data to an external server.
+These providers also usually charge for their services, and _regvue_ is committed to be accessible as free and open-source software.
 
-/ Issues /
+For these reasons, we decided to implement a client-side search using the Lunr search library.
+Lunr provides simple and extensible search functionality that has no external dependencies and can run completely within the browser, meaning no export-controlled information will ever be transmitted to an external service.
+
+After users load a RDF file, a Lunr search index object is created that can be used to search for any hardware element by id, name, offset, or description text.
+The index object will return a list of element ids that most closely correspond to the search text.
+
+There are some drawbacks to using a client-side search.
+There is additional load time necessary to build the search index on page load and it can take much more time to search the index with a given search query compared with external search providers.
+However, because the data being search is just plain text and FPGA designs would almost never have an element count in the thousands, the time to build the search index and to search the entire index has an upper bound of just a couple seconds.
 
 ==== Bit Manipulation
 
@@ -213,7 +227,7 @@ _regvue_ uses Pinia, a store library specifically designed for use with Vue, to 
 Normally, data within Vue apps must be directly passed from parent components to child components, but having data that is accessible throughout the entire app can help simplify this data hierarchy.
 
 When _regvue_ first loads, a Pinia store object is created.
-When the user then opens an RDF file, the store object parses the raw JSON and generates a map that stores all hardware elements (i.e. registers, blocks, or memory segments) within the given FPGA design as formatted Typescript objects.
+When the user then opens an RDF file, the store object parses the raw JSON and generates a map that stores all hardware elements (i.e. registers, blocks, or memory segments) within the given FPGA design as formatted TypeScript objects.
 This greatly simplifies accessing information about different elements from the different components within the file.
 Instead of passing information about all the different elements from every parent component to every child component, _regvue_ can instead obtain the current element's id from the URL, and then can use that id to access information about the element from the store object.
 
