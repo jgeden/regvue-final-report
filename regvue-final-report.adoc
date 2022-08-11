@@ -32,50 +32,45 @@ This creates an issue when the design engineer uploads a new version of the docu
 This mismatch can be difficult to notice and can incur significant delays, and therefore additional costs, during the FPGA testing and debugging process.
 
 In addition to this, the documentation provided by these documents is static and does not support the actual testing and debugging workflow of hardware engineers.
-For example, when testing or debugging hardware, FPGA hardware test engineers may read out the value of a specific hardware register.
-The value may also be outputted as a hexadecimal value, but in order to understand the meaning of the value, it has to be converted to a binary or decimal representation.
-Registers can also consist of numerous fields where the meaning of specific field values depends on the position of the field in the overall register.
-The overall register value may also be read out as little or big endian value depending on the device under test.
+For example, say there is a field that takes up the bottom (least-significant) 6 bits of a 32 bit register.
+This field represents the number of errors a certain device encounters.
+A typical workflow to obtain the number of errors may therefore look like:
 
-So a typical workflow to understand the value of a certain field on a given register may look like:
+. Read out the value of the register using external tools as a big-endian hexadecimal value
 
-. Read out the value of the register using external tools
+. Convert the big-endian value to a little-endian value
 
-. Because the register value is written out using as big-endian, the test engineer has to manually byte swap the value
+. Convert that value from hexadecimal to binary
 
-. Because the field of interest only takes up a certain range of bits, manually convert the value from hexadecimal to binary
+. Isolate the bottom 6 bits of that binary value
 
-. Isolate the bits of interest and then convert back to hexadecimal
+. Convert that value to decimal
 
 / Use a graphic to summarize these steps instead of writing out like this /
 
 This manual manipulation and conversion of register and field values is incredibly error-prone and unnecessarily increases the complexity of the already complex hardware testing and debugging process.
 
 These issues with JPL's existing hardware documentation strategy is what inspired the development of _regvue_.
-Available as both web and desktop applications, _regvue_ utilizes a design-agnostic JSON schema called the Register Description Format (RDF) to generate easy-to-use and modern documentation.
+Available as both a web and desktop application, _regvue_ utilizes a design-agnostic JSON schema called the Register Description Format (RDF) to generate easy-to-use modern documentation.
+
 Design engineers can manually create RDF files or use existing register automation tools to generate RDF files from existing documentation specifications. 
 _regvue_ can then parse these files to produce a website with all the features of classic online technical documentation sites as well as additional features specific to the FPGA testing and debugging workflow.
-The documentation provided by _regvue_ significantly reduces the costs and delays associated with testing and debugging FPGA hardware.
+
 FPGA hardware test engineers no longer have to worry about accessing out-of-date documentation, because FPGA design engineers can host their RDF files through online repositories that _regvue_ can access, so any update to the design can be automatically reflected in the documentation site accessed by test engineers.
-Test engineers also no longer have to manually parse register values, because _regvue_ includes an interactive bit table for every register that can automatically decode register values into meaningful representations and can automatically convert values between hexadecimal, decimal, and binary representations.
+Test engineers also no longer have to manually parse register values, because _regvue_ includes an interactive bit table for every register that can automatically decode register values into meaningful representations and can automatically convert values between hexadecimal, decimal, and binary representations. The documentation provided by _regvue_ will therefore significantly reduces the costs and delays associated with testing and debugging FPGA hardware.
 
-
-/ IMAGE /
-
-== Methods
+== Methods (Implementation)
 
 This section details the different parts of the _regvue_ application and the surrounding technologies necessary to run and access it.
 
 === Schema
 
-_regvue_ builds off of previous work that resulted in the creation of the Register Description Format (RDF) schema.
+_regvue_ expands upon previous work that resulted in the creation of the Register Description Format (RDF) schema.
 The RDF provides a design-agnostic JSON-encoded hardware design formalization that can be used to document FPGA hardware systems.
 
 On different projects and missions, FPGA design engineers make use of different file formats and file types, such as Word DOCX files or Tcl files, when documenting their designs.
 The RDF was created to bridge the gap between these different formats and file types and provide a general-use data format that can be used by external applications.
 Different register automation solutions were then created that are capable of generating RDF files from the different hardware documentation types.
-
-/ More differences here /
 
 All RDF files begin as JSON-encoded files with three top-level objects.
 
@@ -128,15 +123,18 @@ The `elements` object is a map of all element within the system.
 }
 ----
 
-Versioning – How do we make breaking changes to schema gracefully?
+Because the RDF is designed to be used by external applications, it strictly adheres to https://semver.org/[semantic versioning] to ensure version compatibility.
 
 / Talk about JSON schema and schema validation /
 
 === Application
 
 When developing _regvue_, the two highest priority goals were interactivity and portability.
-We first considered using existing technology to generate plain HTML pages, such as https://readthedocs.org/[_Read the Docs_], however this lacked the interactivity that we wanted users to have access to and would not allow for advanced features such as automatic register value parsing.
-We also considered creating a desktop app with Python and the TK GUI library, however this would not be an incredibly portable solution, because users would have to download and install _regvue_ on any computer where they want to use it.
+
+There were already existing solutions in the form of Word documents and static auto-generated HTML pages, but these solutions lack interactivity. Word document specifications also lack portability between different operating systems.
+
+We considered creating a desktop app with Python and the TK GUI library.
+This would have been a portable solution, but more difficultly so, because there would be overhead in terms of users having to install Python to run the application.
 It also makes updating _regvue_ much more complex because users would be running local executables.
 
 Based on the shortcomings of these implementations, we decided to create _regvue_ as a web application.
@@ -144,20 +142,44 @@ This allows us to include interactivity by using JavaScript within the app and i
 
 ==== Frontend
 
-The frontend of _regvue_ was built using the Vue JavaScript framework.
-Vue provides a declarative and component-based programming model to efficiently develop user interfaces.
+In order to build the frontend user interface (UI) of _regvue_ (everything that the user can see and interact with), we used the Vue framework with Typescript.
 
-https://developer.mozilla.org/en-US/docs/Learn/Tools_and_testing/Client-side_JavaScript_frameworks/Introduction#why_do_frameworks_exist
+Using a framework like simplifies developing a web application.
+It provides a declarative model, meaning when the state of the website changes, such as when a user clicks on a button or inputs a value in a text box, the UI automatically updates to match the new state.
+It also provides a component model, meaning sections of code can be encapsulated in modular components that can be reused multiple times throughout the application.
 
-Similar JavaScript frameworks, such as Angular or React, also could have been used to create _regvue_.
-We made the decision to use Vue because of its use of native HTML template to build UIs (as compared to React's use of JSX) and because Vue follows a progressive development model (as compared to Angular's more opinionated MVC-based design).
+Similar frontend frameworks, such as Angular or React, also could have been used to create _regvue_.
+We made the decision to use Vue because of its use of native HTML templates to build UIs (as compared to React's use of JSX) and because Vue follows a progressive development model (as compared to Angular's more opinionated MVC-based design).
 
-We used Typescript instead of plain JavaScript to improve the maintainability of the code base.
-
-We used npm as our package manager and Vite as our build tool.
-/ Why Vite /
+We also used Typescript instead of plain JavaScript to improve the ease of development and maintainability of the code base.
+Typescript allows the project to have well defined type interfaces that improve code readability and will make returning to the source code easier in the future.
 
 _regvue_ uses Tailwind CSS, a utility-first CSS framework, that provides composable CSS classes to functionally build modern styles.
+Originally, _regvue_ was built using pre-stylized components from the PrimeVue component library.
+PrimeVue provides pre-made components that can be used to quickly build a web app, but developers then are not able to customize the styling very easily.
+PrimeVue also includes a large amount of overhead.
+
+/ Removed PrimeVue. Why? /
+
+==== Search
+
+/ Talk about search /
+
+/ Client-side with Lunr /
+
+/ Issues /
+
+==== Bit Manipulation
+
+/ Bit table /
+
+/ Swap between representations /
+
+/ Byte swap /
+
+/ Resets /
+
+/ Enums /
 
 ==== Routing
 
@@ -185,7 +207,7 @@ This view is displayed when a user either enters a URL that does not correspond 
 
 / PageNotFound image /
 
-==== Data
+==== Data Store
 
 _regvue_ uses Pinia, a store library specifically designed for use with Vue, to store and maintain all cross-component data that is used in the app.
 Normally, data within Vue apps must be directly passed from parent components to child components, but having data that is accessible throughout the entire app can help simplify this data hierarchy.
@@ -195,28 +217,42 @@ When the user then opens an RDF file, the store object parses the raw JSON and g
 This greatly simplifies accessing information about different elements from the different components within the file.
 Instead of passing information about all the different elements from every parent component to every child component, _regvue_ can instead obtain the current element's id from the URL, and then can use that id to access information about the element from the store object.
 
+==== Includes
+
+/ Talk about using includes to build composed designs /
+
 ==== Testing
 
 _regvue_ uses the Vitest unit testing framework to test utility functions and the Cypress end-to-end testing framework to perform browser-based integration testing.
 These tests help ensure any changes to the code base do not break existing functionality. 
 
-=== Hosting
+=== Deployment
 
-_regvue_ can be hosted on almost any hosting platform, such as Vercel, Netlify, or even AWS.
+_regvue_ has minimal hosting requirements and can be deployed as a static site on almost any hosting platform such as Vercel, Netlify, or AWS.
 The _regvue_ development team maintains a set of deployments using GitHub Pages that correspond to all major versions of _regvue_, meaning end users do not need to install or deploy _regvue_ if they do not wish to.
 
-Because _regvue_ is being used by JPL engineers to document information that more often than not is subject to U.S. Export Regulations, significant thought had to be given to ensure that only authorized users can access export-controlled information.
-The _regvue_ application itself does not include any export-controlled information within its source code, so the problem that we had to solve was finding a way to ensure any RDF files that users want to link to are limited to authenticated users but still accessible by the _regvue_ app.
+==== Export Control
 
-Our use of GitHub Pages actually solved this issue for us with minimal difficulty.
-Because we host _regvue_ on JPL's GitHub Enterprise server using GitHub Pages, which is only accessible for authenticated users connected to the JPL VPN, users must log in with their JPL credentials to access the official deploy.
+/ Talk about export control /
+
+"Public repos on github.jpl.nasa.gov are limited to US persons.  This is good enough for Export Controlled information.  However, we have additional sensitivity levels that require further restriction (see D-77806).  For example, Controlled Unclassified (CUI)/Sensitive But Unclassified (SBU)/For Official Use Only (FOUO) must be restricted to select individuals.  This can be done by making the repo private then granting access to select individuals.  Would be good to include these designations in the report because these are NASA/government level designations (i.e. bigger than JPL)."
+-- Rob
+
+==== Authentication
+
+Because _regvue_ is being used by JPL engineers to document information that more often than not is subject to U.S. Export Regulations, significant thought had to be given to ensure that only authorized users can access export-controlled information.
+The _regvue_ application itself does not include any export-controlled information within its deployed build code, so the problem that we had to solve was finding a way to ensure any RDF files that users want to link to are limited to authenticated users but still accessible by the _regvue_ app.
+
+Our use of GitHub Pages actually solved this issue for us with minimal overhead.
+We host _regvue_ on JPL's GitHub Enterprise server using GitHub Pages, which is only accessible for authenticated users connected to the JPL VPN.
 When users then want to access a RDF file by URL, if that file is also hosted on JPL's GitHub Enterprise server, no additional authentication is necessary because the _regvue_ deploy and the RDF file share the same origin URL.
 This use of GitHub Enterprise therefore means the official _regvue_ deploy has built-in authentication with no additional code necessary.
 
-==== Executable Binaries
+==== Desktop Application
 
-While _regvue_ was primarily developed to be a web-based tool, we have also been able to create executable binaries using the Tauri framework that are capable of running directly on Windows, Mac, and Linux operating systems.
-While not officially supported yet, we plan to use these local executables to add specific features to _regvue_ that would be otherwise impossible to add to a browser-based application.
+While _regvue_ was primarily developed to be deployed as a web app, we have also been able to create executable binaries that are capable of running directly on Windows, Mac, and Linux operating systems as a desktop application.
+To accomplish this, we used the Tauri framework, which provides a Rust backend and a cross-platform WebView rendering library that is capable of displaying a web-based frontend.
+While not officially supported yet, we plan to use these local executables in the future to add specific features to _regvue_ that would be otherwise impossible due to browser limitations.
 
 == Results
 
@@ -228,7 +264,7 @@ Figuring out those register values can be quite challenging since it is broken d
 It cuts down the time it would take to go through the document, put down on paper what the register should be and double checking the value.
 Also, with the tool being able to convert from binary to decimal to hexadecimal, it makes translating engineering values way easier.
 I hope to continue to use this on future projects such as MSR."
--- Brian Nguyen, Senior Electrical Engineer, Europa Clipper (348E)
+-- Brian Nguyen, Senior Electrical Engineer, Europa Clipper (348E) +
 
 "Regvue is the interactive register viewer I have dreamed about for years.
 It's a powerful tool to assist hardware designers, software designers, and end-users.
@@ -236,6 +272,7 @@ I plan to use it on all of my flight FPGA designs going forward"
 -- Ryan Stern, MSR SRL Motor Control Card FPGA Task Lead (349C)
 
 / Talk more about how regvue has worked /
+
 / Talk about where does it fall short /
 
 == Conclusion
@@ -253,17 +290,15 @@ Consider creating an image that shows the link between the schema and the render
 
 == Acknowledgments
 
-Acknowledge your mentor and all other individuals who provided technical assistance, and the individuals, organizations, grants, or contracts from whom you received financial support.
-Students should be sure to include the names of their financial sponsors.
+Special thanks to Rob Donnelly for his mentorship and guidance.
+_regvue_ was his vision, and it has been an extremely rewarding experience helping to bring that vision to reality.
+
+Thanks to Mike Thielman, <insert official title here> and the Europa Clipper Mission (MAKE THIS MORE SPECIFIC) for providing the funding and administrative support necessary to transform _regvue_ from a proposal and prototype to a full-fledged hardware documentation solution.
+
+Additional thanks to Ryan Stern and the hardware engineers in the Flight Software and Avionics Systems Group for their early adoption of _regvue_ and for supporting its development by suggesting new features and identifying bugs.
+
+And lastly, thanks to the Caltech Student-Faculty Programs Office and JPL for hosting the JPL Summer Internship Program and to all those who helped support this program.
 
 == References
 
-Authors are responsible for the accuracy of references.
-References should be numbered sequentially as they appear in the text and should be listed at the end of the paper.
-Reference numbers should be in superscript when cited in the text.
-
-
-== Appendix
-
-Appendices.
-Large data files, catalogs, tables, diagrams, and archival information may be included in 'Appendices' at the end of the paper.
+<add any references>
