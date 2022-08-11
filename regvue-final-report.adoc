@@ -46,17 +46,20 @@ FPGA hardware test engineers no longer have to worry about accessing out-of-date
 Test engineers also no longer have to manually parse register values, because _regvue_ includes an interactive bit table for every register that can automatically decode register values into meaningful representations and can automatically convert values between hexadecimal, decimal, and binary representations.
 
 
-* IMAGE *
+/ IMAGE /
 
 == Methods
+
+This section details the different parts of the _regvue_ application and the surrounding technologies necessary to run and access it.
 
 === Schema
 
 _regvue_ builds off of previous work that resulted in the creation of the Register Description Format (RDF) schema.
-The RDF schema provides a design-agnostic JSON-encoded hardware design formalization that can be used to document FPGA hardware systems.
+The RDF provides a design-agnostic JSON-encoded hardware design formalization that can be used to document FPGA hardware systems.
 
-The schema was created to bridge a gap between different styles of representing hardware documentation.
-Different register automation solutions were then created that are capable of generating RDF files from different hardware documentation file formats and file types, such as DOCX files or Tcl files.
+On different projects and missions, FPGA design engineers make use of different file formats and file types, such as Word DOCX files or Tcl files, when documenting their designs.
+The RDF was created to bridge the gap between these different formats and file types and provide a general-use data format that can be used for external applications.
+Different register automation solutions were then created that are capable of generating RDF files from the different hardware documentation types.
 
 The RDF was inspired in part by the https://www.keil.com/pack/doc/CMSIS/SVD/html/index.html[CMSIS System View Description format] (CMSIS-SVD).
 CMSIS-SVD files are specified using an XML-based format, and also includes * more features that make it different *.
@@ -64,8 +67,64 @@ RDF files are instead specified as JSON files in order to more easily support a 
 
 / More differences here /
 
-Describe the schema
-Why is a schema important?  What is its purpose?
+All RDF files begin with three top-level objects.
+
+The `schema` object defines the name and version of the schema being used.
+_regvue_ currently only supports v1.x of the `register-description-format`, but this meta data was included to allow for future data formats to be supported in the future.
+[source.json]
+.Example `schema` object
+----
+"schema": {
+    "version": "v1",
+    "name": "register-description-format"
+}
+----
+
+The `root` object provides information about the overall FPGA design being represented.
+This includes the name, version, and descriptive doc text. 
+It also includes a list of ids for all root-level elements.
+[source.json]
+.Example `root` object
+----
+"root": {
+    "version": "v1.0",
+    "desc": "Example Design",
+    "children": [ ... ],
+    "doc": "This is an example design.",
+}
+----
+
+The `elements` object is a map of all element within the system.
+[source.json]
+.Example `elements` object with a single `reg` type element
+----
+"elements": { 
+    "registerA": {
+        "id": "registerA",
+        "name": "registerA",
+        "type": "reg",
+        "offset": "0x0",
+        "doc": "Register A - an example register",
+        "fields": [
+            {
+                "nbits": 16,
+                "lsb": 0,
+                "name": "field1",
+                "access": "ro",
+                "doc": "Example field #1"
+            },
+            {
+                "nbits": 16,
+                "lsb": 16,
+                "name": "field1",
+                "access": "ro",
+                "doc": "Example field #2"
+            }
+        ]
+    }
+}
+----
+
 Versioning – How do we make breaking changes to schema gracefully?
 
 / JSON schema /
@@ -115,12 +174,15 @@ Describe the use of GitHub Pages
 Engineers working on the Europa Clipper and Mars Sample Return (MSR) missions have already integrated _regvue_ into their workflows, and so far the tool has proved to be a great help.
 
 "I have used regvue a lot during integration testing for Europa Clipper.
-There are integration tasks to poke and peek at registers and the revgue tool allows me to quickly look up a register and test out different register values.
+There are integration tasks [where I have] to poke and peek at registers and the regvue tool allows me to quickly look up a register and test out different register values.
 Figuring out those register values can be quite challenging since it is broken down to 32 bits, but the regvue tool helps make that translation easier.
 It cuts down the time it would take to go through the document, put down on paper what the register should be and double checking the value.
 Also, with the tool being able to convert from binary to decimal to hexadecimal, it makes translating engineering values way easier.
 I hope to continue to use this on future projects such as MSR."
--- Brian Nguyen, Senior Electrical Engineer, Avionics Integration, Test, and Operations (348E)
+-- Brian Nguyen, Senior Electrical Engineer, Europa Clipper (348E)
+
+"Regvue is the interactive register viewer I have dreamed about for years.  It's a powerful tool to assist hardware designers, software designers, and end-users.  I plan to use it on all of my flight FPGA designs going forward"
+-- Ryan Stern, MSR SRL Motor Control Card FPGA Task Lead (349C)
 
 * What do people think about it
 * Has it made development easier
