@@ -158,12 +158,10 @@ We made the decision to use Vue because of its use of native HTML templates to b
 We also used Typescript instead of plain JavaScript to improve the ease of development and maintainability of the code base.
 Typescript allows the project to have well defined type interfaces that improve code readability and will make returning to the source code easier in the future.
 
-_regvue_ uses Tailwind CSS, a utility-first CSS framework, that provides composable CSS classes to functionally build modern styles.
+_regvue_ uses Tailwind CSS, a CSS utility framework that provides composable CSS classes to functionally build modern styles.
 Originally, _regvue_ was built using pre-stylized components from the PrimeVue component library.
 PrimeVue provides pre-made components that can be used to quickly build a web app, but developers then are not able to customize the styling very easily.
-PrimeVue also includes a large amount of overhead.
-
-/ Removed PrimeVue. Why? /
+Tailwind is also incredibly performant and will automatically remove unused CSS classes to ship the smallest possible CSS file, meaning it has a much lighter footprint than PrimeVue.
 
 ==== Search
 

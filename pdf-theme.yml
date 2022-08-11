@@ -2,6 +2,6 @@ extends: default
 
 title-page:
   authors:
-    delimiter: "\n"
+    delimiter: ";"
   title:
     top: 10%
