@@ -82,15 +82,15 @@ _regvue_ currently only supports v1.x of the `register-description-format`, but 
 
 The `root` object provides information about the overall FPGA design being represented.
 This includes the name, version, and descriptive doc text. 
-It also includes a list of ids for all root-level elements.
+It also includes a list of ids for all root-level elements (or root "children").
 [source.json]
 .Example `root` object
 ----
 "root": {
     "version": "v1.0",
     "desc": "Example Design",
-    "children": [ ... ],
     "doc": "This is an example design.",
+    "children": [ ... ],
 }
 ----
 
@@ -107,18 +107,11 @@ The `elements` object is a map of all element within the system.
         "doc": "Register A - an example register",
         "fields": [
             {
-                "nbits": 16,
+                "name": "example_field",
+                "access": "ro",
                 "lsb": 0,
-                "name": "field1",
-                "access": "ro",
-                "doc": "Example field #1"
-            },
-            {
-                "nbits": 16,
-                "lsb": 16,
-                "name": "field1",
-                "access": "ro",
-                "doc": "Example field #2"
+                "nbits": 32,
+                "doc": "Example field"
             }
         ]
     }
@@ -149,13 +142,45 @@ Vue provides a declarative and component-based programming model to efficiently 
 https://developer.mozilla.org/en-US/docs/Learn/Tools_and_testing/Client-side_JavaScript_frameworks/Introduction#why_do_frameworks_exist
 
 Similar JavaScript frameworks, such as Angular or React, also could have been used to create _regvue_.
-We made the decision to use Vue because of its use of native HTML template to build UIs (as compared to React's use of JSX) and it follows a progressive development model (as compared to Angular's more opinionated MVC-based design).
+We made the decision to use Vue because of its use of native HTML template to build UIs (as compared to React's use of JSX) and because Vue follows a progressive development model (as compared to Angular's more opinionated MVC-based design).
 
 _regvue_ uses Tailwind CSS, a utility-first CSS framework, that provides composable CSS classes to functionally build modern styles.
 
+==== Routing
+
+_regvue_ uses Vue Router to handle URL navigation.
+As a progressive framework, Vue allows developers to opt-in to different levels of complexity, and therefore does not provide a router out of the box, however adding Vue Router to an existing project is incredibly simple since it follows a plugin-style architecture.
+
+When the app first loads, a router object is created that comes with a predefined set of routes to handle.
+_regvue_ currently has three distinct page views that the router can display based on the URL.
+
+The first page view that most users of _regvue_ will see is the open page.
+This page corresponds to the `/open` URL and provides users with input boxes to load a RDF file from the local filesystem or from a URL.
+
+/ OpenView image /
+
+Once the user opens a RDF file, the element page is shown.
+This is the main view of _regvue_ and displays the documentation information about the different design elements.
+It also includes the navigation menu and the header.
+
+/ Talk about url pattern here and how it corresponds to element id /
+
+/ ElementView image /
+
+The final page view is the 404 page.
+This view is displayed when a user either enters a URL that does not correspond to a pre-defined route or tries to navigate to an element that does not exist.
+
+/ PageNotFound image /
+
 ==== Data
 
-_regvue_ uses Pinia to store and maintain all cross-component data that is used in the app.
+_regvue_ uses Pinia, a store library specfiically designed for use with Vue, to store and maintain all cross-component data that is used in the app.
+Normally, data within Vue apps must be directly passed from parent components to child components, but having data that is accessible throughout the entire app can help simplify this data hierarchy.
+
+When _regvue_ first loads, a Pinia store object is created.
+When the user then opens an RDF file, the store object parses the raw JSON and generates a map that stores all hardware elements (i.e. registers, blocks, or memory segments) within the given FPGA design as formatted Typescript objects.
+This greatly simplifies accessing information about different elements from the different components within the file.
+Instead of passing information about all the different elements from every parent component to every child component, _regvue_ can instead obtain the current element's id from the URL, and then can use that id to access information about the element from the store object.
 
 ==== Testing
 
