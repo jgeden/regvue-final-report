@@ -185,14 +185,25 @@ Instead of passing information about all the different elements from every paren
 ==== Testing
 
 _regvue_ uses the Vitest unit testing framework to test utility functions and the Cypress end-to-end testing framework to perform browser-based integration testing.
+These tests help ensure any changes to the code base do not break existing functionality. 
 
 === Hosting
 
-Describe the use of GitHub Pages
+_regvue_ can be hosted on almost any hosting platform, such as Vercel, Netlify, or even AWS.
+The _regvue_ development team maintains a set of deployments using GitHub Pages that correspond to all major versions of _regvue_, meaning end users do not need to install or deploy _regvue_ if they do not wish to.
 
-=== Executable Binaries
+Because _regvue_ is being used by JPL engineers to document information that more often than not is subject to U.S. Export Regulations, significant thought had to be given to ensure that only authorized users can access export-controlled information.
+The _regvue_ application itself does not include any export-controlled information within its source code, so the problem that we had to solve was finding a way to ensure any RDF files that users want to link to are limited to authenticated users but still accessible by the _regvue_ app.
 
-/ Tauri /
+Our use of GitHub Pages actually solved this issue for us with minimal difficulty.
+Because we host _regvue_ on JPL's GitHub Enterprise server using GitHub Pages, which is only accessible for authenticated users connected to the JPL VPN, users must log in with their JPL credentials to access the official deploy.
+When users then want to access a RDF file by URL, if that file is also hosted on JPL's GitHub Enterprise server, no additional authentication is necessary because the _regvue_ deploy and the RDF file share the same origin URL.
+This use of GitHub Enterprise therefore means the official _regvue_ deploy has built-in authentication with no additional code necessary.
+
+==== Executable Binaries
+
+While _regvue_ was primarily developed to be a web-based tool, we have also been able to create executable binaries using the Tauri framework that are capable of running directly on Windows, Mac, and Linux operating systems.
+While not officially supported yet, we plan to use these local executables to add specific features to _regvue_ that would be otherwise impossible to add to a browser-based application.
 
 == Results
 
@@ -206,12 +217,13 @@ Also, with the tool being able to convert from binary to decimal to hexadecimal,
 I hope to continue to use this on future projects such as MSR."
 -- Brian Nguyen, Senior Electrical Engineer, Europa Clipper (348E)
 
-"Regvue is the interactive register viewer I have dreamed about for years.  It's a powerful tool to assist hardware designers, software designers, and end-users.  I plan to use it on all of my flight FPGA designs going forward"
+"Regvue is the interactive register viewer I have dreamed about for years.
+It's a powerful tool to assist hardware designers, software designers, and end-users.
+I plan to use it on all of my flight FPGA designs going forward"
 -- Ryan Stern, MSR SRL Motor Control Card FPGA Task Lead (349C)
 
-* What do people think about it
-* Has it made development easier
-* Where does it fall short
+/ Talk more about how regvue has worked /
+/ Talk about where does it fall short /
 
 == Conclusion
 
