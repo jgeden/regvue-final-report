@@ -345,30 +345,29 @@ I hope to continue to use this on future projects such as MSR."
 
 "Regvue is the interactive register viewer I have dreamed about for years.
 It's a powerful tool to assist hardware designers, software designers, and end-users.
-I plan to use it on all of my flight FPGA designs going forward"
+I plan to use it on all of my flight FPGA designs going forward."
 -- Ryan Stern, MSR SRL Motor Control Card FPGA Task Lead (349C)
 
-/ Talk more about how regvue has worked /
 
-/ Talk about where does it fall short /
+Users have consistently remarked on how _regvue_ drastically simplifies the hardware testing and debugging process.
+
+The interactive bit table is perhaps the most popular feature amongst users and many have said they can't imagine ever having to return to manually manipulating register values.
+
+_regvue_ is not done being developed either.
+Futures plans include adding the ability to compare and provide diff highlighting for multiple potential values of a single register and to allow for real-time testbed integration.
 
 == Conclusion
 
-Figures.
-Include figures whenever possible to illustrate your points.
-Explanatory diagrams may help explain background information (pictures from textbooks are fine).
-Carefully choose your image size, font size, line widths, and labels to ensure that your figures are clear.
-Plot theory and experiment on the same graph and redraw screen photos.
-All figures should be accompanied by explanatory captions.
+JPL now has a robust hardware documentation solution that can be used to document any future hardware designs.
+The documentation provided by _regvue_ is easy to access, easy to update, and provides advanced features that are capable of accelerating the hardware testing and debugging process.
+Hardware test engineers will no longer accidentally access out-of-date documentation or make errors trying to manually manipulate register and field values.
 
-Favor fewer information packed screenshots that show multiple things at once.
-Use annotations to point out relevant portions. (e.g. recent searches + search suggestions)
-Consider creating an image that shows the link between the schema and the render (e.g.root.display_name and where it is rendered in the app)
+Design and hardware engineers who have used _regvue_ already have demonstrated enthusiasm to continue to use the tool on future projects and hardware leads on both the Europa Clipper and MSR missions are eager to introduce the tool to more teams throughout JPL.
 
 == Acknowledgments
 
-Special thanks to Rob Donnelly for his mentorship and guidance.
-_regvue_ was his vision, and it has been an extremely rewarding experience helping to bring that vision to reality.
+Special thanks to Rob Donnelly for his mentorship and guidance. +
+_regvue_ was his vision, and it has been an extremely rewarding experience to help bring that vision to reality.
 
 Thanks to Mike Thielman, Europa Clipper Avionics Systems Engineering Lead, and the Europa Clipper Mission for providing the funding and administrative support necessary to transform _regvue_ from a proposal and prototype to a full-fledged hardware documentation solution.
 
@@ -376,6 +375,10 @@ Additional thanks to Ryan Stern and the hardware engineers in the Flight Softwar
 
 And lastly, thanks to the Caltech Student-Faculty Programs Office and JPL for hosting the JPL Summer Internship Program and to all those who helped support this program.
 
-== References
+== Notes
 
-<add any references>
+/** REMOVE **/
+
+Favor fewer information packed screenshots that show multiple things at once.
+Use annotations to point out relevant portions. (e.g. recent searches + search suggestions)
+Consider creating an image that shows the link between the schema and the render (e.g.root.display_name and where it is rendered in the app)
