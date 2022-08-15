@@ -61,11 +61,18 @@ Test engineers also no longer have to manually parse register values, because _r
 
 == Methods (Implementation)
 
-This section details the different parts of the _regvue_ application and the surrounding technologies necessary to run and access it.
+This sections describes in a high-level manner the different aspects of the _regvue_ application and the surrounding technologies necessary to run it.
 
-/ Talk about development method here /
+_regvue_ was developed by a small team of 2 developers.
+New feature requests, potential bugs, and any discussion on design implementation will be managed using GitHub Issues.
+Any changes to the codebase will be tracked and implemented incrementally using GitHub Pull Requests.
 
-/ GitHub flow, semantic versioning, tags, release notes /
+_regvue_ adheres to https://semver.org/[Semantic Versioning] to track the addition of new features and to introduce backwards-incompatible features or changes.
+When _regvue_ reached a point where a new release was desired, first a GitHub Tag was created to mark the commit in the repository that the release corresponds to.
+Then a compressed production bundle of the app would be published as a GitHub Release.
+This Release would come with a summary of all the new changes as release notes.
+
+After creating a new release, the official _regvue_ deployment maintained by the _regvue_ development team would be updated to this new version.
 
 === Schema
 
@@ -129,7 +136,9 @@ The `elements` object is a map of all element within the system.
 
 Because the RDF is designed to be used by external applications, it strictly adheres to https://semver.org/[semantic versioning] to ensure version compatibility.
 
-/ Talk about JSON schema and schema validation /
+In order to ensure any RDF files opened in _regvue_ conform to this schema, before a file is loaded we use JSON Schema to validate the file.
+JSON Schema is a standardized way of defining JSON schemas.
+Different validation libraries exist that support the JSON Schema standard that can be used to automatically validate a schema.
 
 === Application
 
@@ -183,15 +192,22 @@ However, because the data being search is just plain text and FPGA designs would
 
 ==== Bit Manipulation
 
-/ Bit table /
+One of the most important features that _regvue_ was designed to do was to remove the need for hardware test engineers to manually manipulate register and field values.
+Every register element shown in _regvue_ comes with an interactive bit table that provides a breakdown of the register value into different fields.
 
-/ Swap between representations /
+This table includes a set of buttons that can be used to swap between binary, decimal, and hexadecimal representations.
 
-/ Byte swap /
+It also includes a toggle button that will byte swap the register value.
+This allows for big-endian values to be automatically converted to little-endian before being broken apart in the different fields.
 
-/ Resets /
+Registers can also come with different reset values that are triggered by certain events.
+The bit table provides a button and dropdown menu that provides options to select any reset value that a register has.
 
-/ Enums /
+Certain field values may correspond to named states.
+For example, if an error field has a value of "0x1" that might correspond to an "Error" state.
+The bit table supports enumerated field values and can map these specific numeric values to named states.
+
+/ Bit table image /
 
 ==== Routing
 
@@ -231,7 +247,30 @@ Instead of passing information about all the different elements from every paren
 
 ==== Includes
 
-/ Talk about using includes to build composed designs /
+It is possible for FPGA designs to consist of numerous individual FPGAs that are grouped together due to related functions.
+An issue we encountered during development was the repeated use of FPGA designs for larger combined designs.
+For example, the Europa Input/Output (EIO) and the Europa Memory Card (EMEM) FPGAs had both been specified using the RDF.
+But the overall Europa Compute Element (ECE) contains both of these sub-designs.
+Originally an external tool would be used to combine the two sub-design RDF files into a single combined file.
+This meant an extra tool would need to be maintained.
+
+We then introduced the concept of an Include Element.
+Rather than specifying an element as a register, block, or memory section, hardware design engineers can instead specify an element of type `include` and then provide a URL.
+When _regvue_ loads the RDF file, it will attempt to fetch an RDF file from the given URL and insert it into the parent RDF file.
+
+[source.json]
+.Example `include` element
+----
+"ece.eio": {
+    "name": "eio",
+    "id": "ece.eio",
+    "type": "include",
+    "offset": "0xc0e00000",
+    "url": "eio.json"
+}
+----
+
+This drastically simplifies the process of building combined designs and removes the need for an external tool to combine RDF files.
 
 ==== Testing
 
@@ -247,7 +286,8 @@ The _regvue_ development team maintains a set of deployments using GitHub Pages 
 
 / Talk about export control /
 
-"Public repos on github.jpl.nasa.gov are limited to US persons.  This is good enough for Export Controlled information.  However, we have additional sensitivity levels that require further restriction (see D-77806).  For example, Controlled Unclassified (CUI)/Sensitive But Unclassified (SBU)/For Official Use Only (FOUO) must be restricted to select individuals.  This can be done by making the repo private then granting access to select individuals.  Would be good to include these designations in the report because these are NASA/government level designations (i.e. bigger than JPL)."
+"Public repos on github.jpl.nasa.gov are limited to US persons.
+This is good enough for Export Controlled information.  However, we have additional sensitivity levels that require further restriction (see D-77806).  For example, Controlled Unclassified (CUI)/Sensitive But Unclassified (SBU)/For Official Use Only (FOUO) must be restricted to select individuals.  This can be done by making the repo private then granting access to select individuals.  Would be good to include these designations in the report because these are NASA/government level designations (i.e. bigger than JPL)."
 -- Rob
 
 ==== Authentication
@@ -305,7 +345,7 @@ Consider creating an image that shows the link between the schema and the render
 Special thanks to Rob Donnelly for his mentorship and guidance.
 _regvue_ was his vision, and it has been an extremely rewarding experience helping to bring that vision to reality.
 
-Thanks to Mike Thielman, <insert official title here> and the Europa Clipper Mission (MAKE THIS MORE SPECIFIC) for providing the funding and administrative support necessary to transform _regvue_ from a proposal and prototype to a full-fledged hardware documentation solution.
+Thanks to Mike Thielman, Europa Clipper Avionics Systems Engineering Lead, and the Europa Clipper Mission for providing the funding and administrative support necessary to transform _regvue_ from a proposal and prototype to a full-fledged hardware documentation solution.
 
 Additional thanks to Ryan Stern and the hardware engineers in the Flight Software and Avionics Systems Group for their early adoption of _regvue_ and for supporting its development by suggesting new features and identifying bugs.
 
