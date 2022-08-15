@@ -46,47 +46,49 @@ A typical workflow to obtain the number of errors may therefore look like:
 
 . Convert that value to decimal
 
-/ Use a graphic to summarize these steps instead of writing out like this /
-
 This manual manipulation and conversion of register and field values is incredibly error-prone and unnecessarily increases the complexity of the already complex hardware testing and debugging process.
 
 These issues with JPL's existing hardware documentation strategy is what inspired the development of _regvue_.
-Available as both a web and desktop application, _regvue_ utilizes a design-agnostic JSON schema called the Register Description Format (RDF) to generate easy-to-use modern documentation.
+Available as both a web and desktop application, _regvue_ utilizes a design-agnostic JSON schema called the Register Description Format (RDF) to generate easy-to-use and modern hardware documentation.
 
 Design engineers can manually create RDF files or use existing register automation tools to generate RDF files from existing documentation specifications. 
-_regvue_ can then parse these files to produce a website with all the features of classic online technical documentation sites as well as additional features specific to the FPGA testing and debugging workflow.
+These files can then parsed by _regvue_ to produce a website with all the features of classic online technical documentation sites as well as additional features specific to the FPGA testing and debugging workflow.
 
 FPGA hardware test engineers no longer have to worry about accessing out-of-date documentation, because FPGA design engineers can host their RDF files through online repositories that _regvue_ can access, so any update to the design can be automatically reflected in the documentation site accessed by test engineers.
 Test engineers also no longer have to manually parse register values, because _regvue_ includes an interactive bit table for every register that can automatically decode register values into meaningful representations and can automatically convert values between hexadecimal, decimal, and binary representations. The documentation provided by _regvue_ will therefore significantly reduces the costs and delays associated with testing and debugging FPGA hardware.
 
 == Methods (Implementation)
 
-This sections describes in a high-level manner the different aspects of the _regvue_ application and the surrounding technologies necessary to run it.
-
 _regvue_ was developed by a small team of 2 developers.
-New feature requests, potential bugs, and any discussion on design implementation will be managed using GitHub Issues.
-Any changes to the codebase will be tracked and implemented incrementally using GitHub Pull Requests.
+New feature requests, potential bugs, and any discussion on design implementation was managed using GitHub Issues.
+Any changes to the codebase were tracked and implemented incrementally using GitHub Pull Requests.
 
-_regvue_ adheres to https://semver.org/[Semantic Versioning] to track the addition of new features and to introduce backwards-incompatible features or changes.
+_regvue_ adheres to https://semver.org/[semantic versioning] to track the addition of new features and to introduce backwards-incompatible features or changes.
 When _regvue_ reached a point where a new release was desired, first a GitHub Tag was created to mark the commit in the repository that the release corresponds to.
 Then a compressed production bundle of the app would be published as a GitHub Release.
 This Release would come with a summary of all the new changes as release notes.
 
 After creating a new release, the official _regvue_ deployment maintained by the _regvue_ development team would be updated to this new version.
 
+The following sections describe in a high-level manner the different aspects of the _regvue_ application and the surrounding technologies necessary to run it.
+It will touch on the different problems encountered and how these problems were resolved.
+
 === Schema
 
 _regvue_ expands upon previous work that resulted in the creation of the Register Description Format (RDF) schema.
 The RDF provides a design-agnostic JSON-encoded hardware design formalization that can be used to document FPGA hardware systems.
 
-On different projects and missions, FPGA design engineers make use of different file formats and file types, such as Word DOCX files or Tcl files, when documenting their designs.
-The RDF was created to bridge the gap between these different formats and file types and provide a general-use data format that can be used by external applications.
-Different register automation solutions were then created that are capable of generating RDF files from the different hardware documentation types.
+On different projects and missions, FPGA design engineers make use of different file formats and file types, such as Word DOCX files or Tcl files, to document their designs.
+The RDF was created to bridge the gap between these different formats and file types and to provide a general-use data format that can be used by external applications.
+Different register automation solutions were then created that are capable of generating RDF files from the different types of hardware documentation specifications.
+
+Because the RDF is designed to be used by external applications, it strictly adheres to https://semver.org/[semantic versioning] to ensure version compatibility.
 
 All RDF files begin as JSON-encoded files with three top-level objects.
 
 The `schema` object defines the name and version of the schema being used.
-_regvue_ currently only supports v1.x of the `register-description-format`, but this meta data was included to allow for future data formats to be supported in the future.
+Only v1.x of the `register-description-format` is currently supported by _regvue_, but this meta data was included to allow for future data formats to be supported in the future.
+
 [source.json]
 .Example `schema` object
 ----
@@ -134,11 +136,12 @@ The `elements` object is a map of all element within the system.
 }
 ----
 
-Because the RDF is designed to be used by external applications, it strictly adheres to https://semver.org/[semantic versioning] to ensure version compatibility.
+The RDF uses a dot notation to manage element hierarchy.
+If an element has the name `board` and its parent element is named `system` and has no parent element itself, then the `board` element has the id `system.board`.
 
-In order to ensure any RDF files opened in _regvue_ conform to this schema, before a file is loaded we use JSON Schema to validate the file.
-JSON Schema is a standardized way of defining JSON schemas.
-Different validation libraries exist that support the JSON Schema standard that can be used to automatically validate a schema.
+In order to ensure any RDF files opened in _regvue_ conform to this schema, before a file is loaded it is validated using JSON Schema.
+JSON Schema is a standardization that can be used to define what a JSON document must look like, ways to extract information from it, and how to interact with it.
+Different validation libraries exist that support the JSON Schema standard and can be used to automatically validate that JSON files adhere to a specific schema.
 
 === Application
 
@@ -157,7 +160,7 @@ This allows us to include interactivity by using JavaScript within the app and i
 
 In order to build the frontend user interface (UI) of _regvue_ (everything that the user can see and interact with), we used the Vue framework with Typescript.
 
-Using a framework like simplifies developing a web application.
+Using a framework like Vue simplifies the process of developing a web application.
 It provides a declarative model, meaning when the state of the website changes, such as when a user clicks on a button or inputs a value in a text box, the UI automatically updates to match the new state.
 It also provides a component model, meaning sections of code can be encapsulated in modular components that can be reused multiple times throughout the application.
 
@@ -169,8 +172,27 @@ Typescript allows the project to have well defined type interfaces that improve 
 
 _regvue_ uses Tailwind CSS, a CSS utility framework that provides composable CSS classes to functionally build modern styles.
 Originally, _regvue_ was built using pre-stylized components from the PrimeVue component library.
-PrimeVue provides pre-made components that can be used to quickly build a web app, but developers then are not able to customize the styling very easily.
+PrimeVue provides pre-made components that can be used to quickly build a web app, but at the cost of not being able to modify the styling of these components very easily.
 Tailwind is also incredibly performant and will automatically remove unused CSS classes to ship the smallest possible CSS file, meaning it has a much lighter footprint than PrimeVue.
+
+==== Bit Manipulation
+
+One of the most pressing issues that _regvue_ was designed to resolve was to remove the need for hardware test engineers to manually manipulate register and field values.
+To accomplish this, every register element shown in _regvue_ comes with an interactive bit table that provides a breakdown of the register value into its different fields.
+
+This table includes a set of buttons that can be used to swap between binary, decimal, and hexadecimal representations.
+
+It also includes a toggle button that will byte swap the register value.
+This allows for big-endian values to be automatically converted to little-endian, and vice versa, before being broken apart in the different fields.
+
+Registers can also come with different reset values, that are triggered by certain events, such when the device is powered on or when a hot reset is triggered.
+The bit table provides a button and dropdown menu that provides options to select any reset state that a register is associated with.
+
+Certain field values may correspond to named states.
+For example, if an error field has a value of "0x1" that might correspond to an "Error" state.
+The bit table supports enumerated field values and can automatically map these specific numeric values to named states.
+
+/ Bit table image /
 
 ==== Search
 
@@ -184,35 +206,18 @@ For these reasons, we decided to implement a client-side search using the Lunr s
 Lunr provides simple and extensible search functionality that has no external dependencies and can run completely within the browser, meaning no export-controlled information will ever be transmitted to an external service.
 
 After users load a RDF file, a Lunr search index object is created that can be used to search for any hardware element by id, name, offset, or description text.
-The index object will return a list of element ids that most closely correspond to the search text.
+When the user provides a search query by typing in the search box, the index object will return a list of element ids that most closely correspond to the search text.
 
 There are some drawbacks to using a client-side search.
-There is additional load time necessary to build the search index on page load and it can take much more time to search the index with a given search query compared with external search providers.
-However, because the data being search is just plain text and FPGA designs would almost never have an element count in the thousands, the time to build the search index and to search the entire index has an upper bound of just a couple seconds.
-
-==== Bit Manipulation
-
-One of the most important features that _regvue_ was designed to do was to remove the need for hardware test engineers to manually manipulate register and field values.
-Every register element shown in _regvue_ comes with an interactive bit table that provides a breakdown of the register value into different fields.
-
-This table includes a set of buttons that can be used to swap between binary, decimal, and hexadecimal representations.
-
-It also includes a toggle button that will byte swap the register value.
-This allows for big-endian values to be automatically converted to little-endian before being broken apart in the different fields.
-
-Registers can also come with different reset values that are triggered by certain events.
-The bit table provides a button and dropdown menu that provides options to select any reset value that a register has.
-
-Certain field values may correspond to named states.
-For example, if an error field has a value of "0x1" that might correspond to an "Error" state.
-The bit table supports enumerated field values and can map these specific numeric values to named states.
-
-/ Bit table image /
+There is additional load time necessary to build the search index on app load and it can take much more time to search the index with a given search query compared to external search providers.
+However, because the data being searched is just plain text and FPGA designs would almost never have an element count in the thousands, the time to build the search index has an upper bound of just a couple seconds and to search the entire index typically takes less than 1 second for any query.
 
 ==== Routing
 
-_regvue_ uses Vue Router to handle URL navigation.
-As a progressive framework, Vue allows developers to opt-in to different levels of complexity, and therefore does not provide a router out of the box, however adding Vue Router to an existing project is incredibly simple since it follows a plugin-style architecture.
+_regvue_ is implemented as a single-page application, and therefore needs to use a router to control which pages are displayed when users navigate to different URLs.
+
+As a progressive framework, Vue allows developers to opt-in to different levels of complexity, and therefore does not provide a router out of the box.
+However, the official Vue Router library is incredibly simple to add to an existing project since it follows a plugin-style architecture.
 
 When the app first loads, a router object is created that comes with a predefined set of routes to handle.
 _regvue_ currently has three distinct page views that the router can display based on the URL.
@@ -226,7 +231,9 @@ Once the user opens a RDF file, the element page is shown.
 This is the main view of _regvue_ and displays the documentation information about the different design elements.
 It also includes the navigation menu and the header.
 
-/ Talk about url pattern here and how it corresponds to element id /
+URLs for the element view start with `/root`.
+Then to view a specific element, the element id is given in the form of a URL.
+So to view an element with id `system.board.ctrl`, the URL would be `/root/system/board/ctrl`.
 
 / ElementView image /
 
@@ -241,20 +248,21 @@ _regvue_ uses Pinia, a store library specifically designed for use with Vue, to 
 Normally, data within Vue apps must be directly passed from parent components to child components, but having data that is accessible throughout the entire app can help simplify this data hierarchy.
 
 When _regvue_ first loads, a Pinia store object is created.
-When the user then opens an RDF file, the store object parses the raw JSON and generates a map that stores all hardware elements (i.e. registers, blocks, or memory segments) within the given FPGA design as formatted TypeScript objects.
+When the user then opens an RDF file, the store object parses the raw JSON and generates a map that stores all hardware elements (i.e. registers, blocks, or memory segments) within the FPGA design as formatted TypeScript objects.
+
 This greatly simplifies accessing information about different elements from the different components within the file.
 Instead of passing information about all the different elements from every parent component to every child component, _regvue_ can instead obtain the current element's id from the URL, and then can use that id to access information about the element from the store object.
 
 ==== Includes
 
-It is possible for FPGA designs to consist of numerous individual FPGAs that are grouped together due to related functions.
-An issue we encountered during development was the repeated use of FPGA designs for larger combined designs.
+It is possible for FPGA designs to consist of multiple FPGA sub-designs that are grouped together due to related function or location.
+An issue we encountered during development was the need to continually combine FPGA sub-designs for larger combined designs.
 For example, the Europa Input/Output (EIO) and the Europa Memory Card (EMEM) FPGAs had both been specified using the RDF.
 But the overall Europa Compute Element (ECE) contains both of these sub-designs.
-Originally an external tool would be used to combine the two sub-design RDF files into a single combined file.
-This meant an extra tool would need to be maintained.
+Originally an external tool was used to combine the two sub-design RDF files into a single combined file.
+This was not desireable because it meant an extra tool would need to be maintained and that there would duplicated information being stored.
 
-We then introduced the concept of an Include Element.
+To address this issue, we introduced the concept of an Include Element.
 Rather than specifying an element as a register, block, or memory section, hardware design engineers can instead specify an element of type `include` and then provide a URL.
 When _regvue_ loads the RDF file, it will attempt to fetch an RDF file from the given URL and insert it into the parent RDF file.
 
@@ -284,8 +292,9 @@ The testing framework will then call the given functions with the provided input
 
 _regvue_ uses the Cypress end-to-end testing framework to perform browser-based integration testing.
 These tests are more focused on testing the interactivity of the app, and often test multiple components at the same time.
-One integration test that _regvue_ has includes typing a search term in the search box, selecting the first search result, and ensuring that the app then displays information about that search result.
 These tests are written by accessing HTML DOM elements, typically by the elements' ids, and then performing actions on those elements, such as clicking or typing, by calling Cypress functions.
+
+An example of an integration test that _regvue_ has includes typing a search term in the search box, selecting the first search result, and ensuring that the app then displays information about that search result.
 Other Cypress tests written for _regvue_ include testing menu navigation, bit table value manipulation, and opening new RDF files.
 
 === Deployment
@@ -293,22 +302,23 @@ Other Cypress tests written for _regvue_ include testing menu navigation, bit ta
 _regvue_ has minimal hosting requirements and can be deployed as a static site on almost any hosting platform such as Vercel, Netlify, or AWS.
 The _regvue_ development team maintains a set of deployments using GitHub Pages that correspond to all major versions of _regvue_, meaning end users do not need to install or deploy _regvue_ if they do not wish to.
 
-==== Export Control
+==== Restricted Information
 
-/ Talk about export control /
+Most information regarding FPGA designs at JPL is subject to U.S. Export Regulations.
+This means that the information cannot be shared with foreign persons without prior approval. 
+There are also additional sensitivity levels that require further restriction, such as Controlled Unclassified (CUI), Sensitive but Unclassified (SBU), or For Official Use Only (FOUO).
 
-"Public repos on github.jpl.nasa.gov are limited to US persons.
-This is good enough for Export Controlled information.  However, we have additional sensitivity levels that require further restriction (see D-77806).  For example, Controlled Unclassified (CUI)/Sensitive But Unclassified (SBU)/For Official Use Only (FOUO) must be restricted to select individuals.  This can be done by making the repo private then granting access to select individuals.  Would be good to include these designations in the report because these are NASA/government level designations (i.e. bigger than JPL)."
--- Rob
-
-==== Authentication
-
-Because _regvue_ is being used by JPL engineers to document information that more often than not is subject to U.S. Export Regulations, significant thought had to be given to ensure that only authorized users can access export-controlled information.
-The _regvue_ application itself does not include any export-controlled information within its deployed build code, so the problem that we had to solve was finding a way to ensure any RDF files that users want to link to are limited to authenticated users but still accessible by the _regvue_ app.
+To allow for information that falls under these sensitivity levels to be usable with _regvue_, significant thought had to be given to ensure that users can only access information that they are authorized to. 
+The _regvue_ application itself does not include any sensitive information within its deployed build code, so the problem that we had to solve was finding a way to ensure any RDF files that users want to link to are limited to those who are allowed to access them, but still accessible by the _regvue_ app.
 
 Our use of GitHub Pages actually solved this issue for us with minimal overhead.
-We host _regvue_ on JPL's GitHub Enterprise server using GitHub Pages, which is only accessible for authenticated users connected to the JPL VPN.
-When users then want to access a RDF file by URL, if that file is also hosted on JPL's GitHub Enterprise server, no additional authentication is necessary because the _regvue_ deploy and the RDF file share the same origin URL.
+We host _regvue_ on JPL's GitHub Enterprise server using GitHub Pages, which is only accessible to U.S. persons and requires users to be logged in with a JPL GitHub account.
+When users then want to access a RDF file by URL, if that file is also hosted in a public repository on JPL's GitHub Enterprise server, no additional authentication is necessary because they are already logged in with their JPL GitHub account.
+
+Information that falls under stricter sensitivity levels must be restricted further.
+To accomplish this, RDF files can be hosted in a private repository on JPL's GitHub Enterprise Server and then access can be granted to select individuals.
+When users attempt to load a file from these private repositories, their JPL GitHub account will be checked to ensure they are allowed access.
+
 This use of GitHub Enterprise therefore means the official _regvue_ deploy has built-in authentication with no additional code necessary.
 
 ==== Desktop Application
