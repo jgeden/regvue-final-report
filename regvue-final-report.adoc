@@ -237,11 +237,14 @@ When the user provides a search query by typing in the search box, the index obj
 
 There are some drawbacks to using a client-side search.
 There is additional load time necessary to build the search index on app load and it can take much more time to search the index with a given search query compared to external search providers.
-However, because the data being searched is just plain text and FPGA designs would almost never have an element count in the thousands, the time to build the search index has an upper bound of just a couple seconds and to search the entire index typically takes less than 1 second for any query.
+However, because the data being searched is just plain text, client-side search has scaled relatively well.
+For the Europa Compute Element design, which is a composition of 6 FPGA designs, the time to build the search index and to search the entire index typically takes less than 1 second.
 
 ==== Routing
 
 _regvue_ is implemented as a single-page application, and therefore needs to use a router to control which pages are displayed when users navigate to different URLs.
+In traditional dynamic web applications, when the user navigates to a specific URL, the server will respond with a specific HTML file.
+But with a single-page application, an object called the router will instead conditionally render different components based on the URL.
 
 As a progressive framework, Vue allows developers to opt-in to different levels of complexity, and therefore does not provide a router out of the box.
 However, the official Vue Router library is incredibly simple to add to an existing project since it follows a plugin-style architecture.
@@ -287,7 +290,7 @@ Instead of passing information about all the different elements from every paren
 
 It is possible for FPGA designs to consist of multiple FPGA sub-designs that are grouped together due to related function or location.
 An issue we encountered during development was the need to continually combine FPGA sub-designs for larger combined designs.
-For example, the Europa Input/Output (EIO) and the Europa Memory Card (EMEM) FPGAs had both been specified using the RDF.
+For example, the Europa Input/Output (EIO) and the Europa Memory (EMEM) FPGAs had both been specified using the RDF.
 But the overall Europa Compute Element (ECE) contains both of these sub-designs.
 Originally an external tool was used to combine the two sub-design RDF files into a single combined file.
 This was not desireable because it meant an extra tool would need to be maintained and that there would duplicated information being stored.
@@ -304,9 +307,10 @@ When _regvue_ loads the RDF file, it will attempt to fetch an RDF file from the 
     "id": "ece.eio",
     "type": "include",
     "offset": "0xc0e00000",
-    "url": "eio.json"
+    "url": "eio.json" <1>
 }
 ----
+<1> This is a relative URL property. If the parent json file is at `https://example.com/ece.json`, then this url corresponds to `https://example.com/eio.json`
 
 This drastically simplifies the process of building combined designs and removes the need for an external tool to combine RDF files.
 
@@ -319,6 +323,9 @@ End-to-end tests or integration tests are used to test how an application functi
 _regvue_ uses the Vitest unit testing framework to test utility functions.
 These tests provide an input and expected output to different isolated functions.
 The testing framework will then call the given functions with the provided inputs and ensure it matches the provided outputs.
+For example, there is a utility function that is used throughout the _regvue_ app to turn a string representation of a value into a number.
+So "0x2", "0b10", and "2" would all return the numeric value `2`.
+There is a unit test that provides these three different inputs and asserts that the function returns `2` for all of them.
 
 _regvue_ uses the Cypress end-to-end testing framework to perform browser-based integration testing.
 These tests are more focused on testing the interactivity of the app, and often test multiple components at the same time.
@@ -329,7 +336,7 @@ Other Cypress tests written for _regvue_ include testing menu navigation, bit ta
 
 === Deployment
 
-_regvue_ has minimal hosting requirements and can be deployed as a static site on almost any hosting platform such as Vercel, Netlify, or AWS.
+_regvue_ has minimal hosting requirements and can be deployed as a static site on almost any hosting platform, including free services such as GitHub Pages and GitLab Pages.
 The _regvue_ development team maintains a set of deployments using GitHub Pages that correspond to all major versions of _regvue_, meaning end users do not need to install or deploy _regvue_ if they do not wish to.
 
 ==== Restricted Information
