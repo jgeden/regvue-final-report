@@ -192,7 +192,8 @@ Certain field values may correspond to named states.
 For example, if an error field has a value of "0x1" that might correspond to an "Error" state.
 The bit table supports enumerated field values and can automatically map these specific numeric values to named states.
 
-/ Bit table image /
+.Bit table for a register with three fields
+image::bit-table.png[Bit Table]
 
 ==== Search
 
@@ -225,7 +226,8 @@ _regvue_ currently has three distinct page views that the router can display bas
 The first page view that most users of _regvue_ will see is the open page.
 This page corresponds to the `/open` URL and provides users with input boxes to load a RDF file from the local filesystem or from a URL.
 
-/ OpenView image /
+.Open page
+image::open-view.png[Open View]
 
 Once the user opens a RDF file, the element page is shown.
 This is the main view of _regvue_ and displays the documentation information about the different design elements.
@@ -235,12 +237,14 @@ URLs for the element view start with `/root`.
 Then to view a specific element, the element id is given in the form of a URL.
 So to view an element with id `system.board.ctrl`, the URL would be `/root/system/board/ctrl`.
 
-/ ElementView image /
+.Element page with an example register
+image::element-view.png[Element View]
 
 The final page view is the 404 page.
 This view is displayed when a user either enters a URL that does not correspond to a pre-defined route or tries to navigate to an element that does not exist.
 
-/ PageNotFound image /
+.404 page
+image::missing-view.png[Element View]
 
 ==== Data Store
 
