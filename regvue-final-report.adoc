@@ -274,8 +274,19 @@ This drastically simplifies the process of building combined designs and removes
 
 ==== Testing
 
-_regvue_ uses the Vitest unit testing framework to test utility functions and the Cypress end-to-end testing framework to perform browser-based integration testing.
-These tests help ensure any changes to the code base do not break existing functionality. 
+Testing is incredibly important for ensuring previously implemented features continue to work.
+Unit tests are typically used to test individual functions in isolation.
+End-to-end tests or integration tests are used to test how an application functions when its different modules are integrated and working together.
+
+_regvue_ uses the Vitest unit testing framework to test utility functions.
+These tests provide an input and expected output to different isolated functions.
+The testing framework will then call the given functions with the provided inputs and ensure it matches the provided outputs.
+
+_regvue_ uses the Cypress end-to-end testing framework to perform browser-based integration testing.
+These tests are more focused on testing the interactivity of the app, and often test multiple components at the same time.
+One integration test that _regvue_ has includes typing a search term in the search box, selecting the first search result, and ensuring that the app then displays information about that search result.
+These tests are written by accessing HTML DOM elements, typically by the elements' ids, and then performing actions on those elements, such as clicking or typing, by calling Cypress functions.
+Other Cypress tests written for _regvue_ include testing menu navigation, bit table value manipulation, and opening new RDF files.
 
 === Deployment
 
