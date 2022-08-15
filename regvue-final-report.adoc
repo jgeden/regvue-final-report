@@ -24,7 +24,7 @@ By providing higher quality documentation and advanced features with _regvue_, h
 
 == Introduction
 
-When engineers need to consult Field Programmable Gate Array (FPGA) hardware documentation, they traditionally have turned to PDF or Word documents created and maintained by FPGA design engineers that are hosted on internal file-sharing websites.
+When engineers at JPL need to consult Field Programmable Gate Array (FPGA) hardware documentation, they traditionally have turned to PDF or Word documents created and maintained by FPGA design engineers that are hosted on internal file-sharing websites.
 From these websites, FPGA hardware test engineers can either preview the document online or they can download the file and open it locally.
 Because online file viewers lack certain features and are typically slower to use, most engineers download these documentation files and use them locally.
 
@@ -137,9 +137,9 @@ The `elements` object is a map of all element within the system.
 ----
 
 The RDF uses a dot notation to manage element hierarchy.
-If an element has the name `board` and its parent element is named `system` and has no parent element itself, then the `board` element has the id `system.board`.
+If an element has the name `register` and its parent element is named `block` and has no parent element itself, then the `register` element has the id `block.register`.
 
-In order to ensure any RDF files opened in _regvue_ conform to this schema, before a file is loaded it is validated using JSON Schema.
+In order to ensure any RDF files opened in _regvue_ conform to this schema, files are validated using JSON Schema when they are first loaded.
 JSON Schema is a standardization that can be used to define what a JSON document must look like, ways to extract information from it, and how to interact with it.
 Different validation libraries exist that support the JSON Schema standard and can be used to automatically validate that JSON files adhere to a specific schema.
 
