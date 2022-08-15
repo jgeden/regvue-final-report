@@ -93,7 +93,7 @@ All RDF files begin as JSON-encoded files with three top-level objects.
 The `schema` object defines the name and version of the schema being used.
 Only v1.x of the `register-description-format` is currently supported by _regvue_, but this meta data was included to allow for future data formats to be supported in the future.
 
-[source.json]
+[source,json]
 .Example `schema` object
 ----
 "schema": {
@@ -105,7 +105,7 @@ Only v1.x of the `register-description-format` is currently supported by _regvue
 The `root` object provides information about the overall FPGA design being represented.
 This includes the name, version, and descriptive doc text. 
 It also includes a list of ids for all root-level elements (or root "children").
-[source.json]
+[source,json]
 .Example `root` object
 ----
 "root": {
@@ -117,7 +117,7 @@ It also includes a list of ids for all root-level elements (or root "children").
 ----
 
 The `elements` object is a map of all element within the system.
-[source.json]
+[source,json]
 .Example `elements` object with a single `reg` type element
 ----
 "elements": { 
@@ -296,7 +296,7 @@ To address this issue, we introduced the concept of an Include Element.
 Rather than specifying an element as a register, block, or memory section, hardware design engineers can instead specify an element of type `include` and then provide a URL.
 When _regvue_ loads the RDF file, it will attempt to fetch an RDF file from the given URL and insert it into the parent RDF file.
 
-[source.json]
+[source,json]
 .Example `include` element
 ----
 "ece.eio": {
