@@ -1,4 +1,4 @@
-= Improving Hardware Register Documentation Tooling
+= regvue: Improving Hardware Register Documentation Tooling
 Josh Geden <joshua.geden@duke.edu>; Rob Donnelly <robert.donnelly@jpl.nasa.gov>
 :toc:
 :imagesdir: images

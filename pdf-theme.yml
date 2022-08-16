@@ -2,6 +2,8 @@ extends: default
 
 title-page:
   authors:
-    delimiter: ";"
+    delimiter: "; "
+    # content:
+    #   with_email: "{author} - {email}\n"
   title:
     top: 10%
