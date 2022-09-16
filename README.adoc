@@ -1,4 +1,4 @@
-= FPGA Register Explorer Proposal
+= Regvue Final Report
 
 This repository contains the source for the link:regvue-final-report.adoc[Regvue Final Report] document.
 
